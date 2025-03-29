@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text Me Your List</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Send Us Your Grocery List</h2>
+  <form id="orderForm">
+    <input type="text" id="name" placeholder="Your name" required />
+    <input type="tel" id="phone" placeholder="Phone number" required />
+    <input type="text" id="address" placeholder="Delivery address" required />
+    <select id="store" required>
+      <option value="">Select a store</option>
+      <option value="Whole Foods">Whole Foods</option>
+      <option value="Trader Joe's">Trader Joe's</option>
+      <option value="Walmart">Walmart</option>
+      <option value="Other">Other</option>
+    </select>
+    <textarea id="groceryList" rows="6" placeholder="Enter your grocery list here..." required></textarea>
+    <button type="submit">Submit Order</button>
+  </form>
+
+  <p id="confirmation" style="display:none; font-weight: bold;">Thank you! Your order has been received.</p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPMLVJjY9Xt3JJGL3cjFdc598IlkNFheA",
+      authDomain: "textmeyourlist-82cba.firebaseapp.com",
+      projectId: "textmeyourlist-82cba",
+      storageBucket: "textmeyourlist-82cba.firebasestorage.app",
+      messagingSenderId: "1039181090239",
+      appId: "1:1039181090239:web:cea44eef243906afc7650a",
+      measurementId: "G-PR1X3MNCLV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("orderForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const address = document.getElementById("address").value;
+      const store = document.getElementById("store").value;
+      const groceryList = document.getElementById("groceryList").value;
+
+      try {
+        await addDoc(collection(db, "orders"), {
+          name,
+          phone,
+          address,
+          store,
+          groceryList,
+          timestamp: serverTimestamp()
+        });
+
+        document.getElementById("orderForm").reset();
+        document.getElementById("confirmation").style.display = "block";
+      } catch (error) {
+        alert("Error sending order: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
